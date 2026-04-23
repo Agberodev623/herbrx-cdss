@@ -84,8 +84,8 @@ export default function LandingPage() {
 
       {/* Philosophy Section */}
       <section className="grid md:grid-cols-12 gap-0 border border-sage-200 rounded-[3rem] overflow-hidden bg-white">
-        <div className="md:col-span-1 border-r border-sage-200 flex items-center justify-center py-8">
-           <div className="rotate-[-90deg] whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.4em] text-sage-300">
+        <div className="md:col-span-1 border-b md:border-b-0 md:border-r border-sage-200 flex items-center justify-center py-8 md:py-12">
+           <div className="md:rotate-[-90deg] whitespace-nowrap text-[10px] font-bold uppercase tracking-[0.4em] text-sage-300">
              Tradition Meets Precision
            </div>
         </div>
