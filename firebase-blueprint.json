@@ -1,0 +1,72 @@
+{
+  "entities": {
+    "patient": {
+      "title": "Patient",
+      "description": "Patient profile information",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "age": { "type": "number" },
+        "gender": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "email", "age", "gender", "createdAt"]
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "Admin user record",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" }
+      },
+      "required": ["email"]
+    },
+    "remedy": {
+      "title": "Remedy",
+      "description": "Herbal remedy for a specific sickness",
+      "type": "object",
+      "properties": {
+        "sicknessName": { "type": "string" },
+        "remedyName": { "type": "string" },
+        "preparation": { "type": "string" },
+        "dosage": { "type": "string" },
+        "duration": { "type": "string" },
+        "precautions": { "type": "string" },
+        "sideEffects": { "type": "string" }
+      },
+      "required": ["sicknessName", "remedyName", "preparation", "dosage", "duration", "precautions", "sideEffects"]
+    },
+    "prescription": {
+      "title": "Prescription",
+      "description": "Generated prescription record",
+      "type": "object",
+      "properties": {
+        "patientId": { "type": "string" },
+        "sickness": { "type": "string" },
+        "remedyId": { "type": "string" },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "details": { "type": "object" }
+      },
+      "required": ["patientId", "sickness", "remedyId", "generatedAt", "details"]
+    }
+  },
+  "firestore": {
+    "/patients/{patientId}": {
+      "schema": "patient",
+      "description": "Patient profiles"
+    },
+    "/admins/{adminId}": {
+      "schema": "admin",
+      "description": "Admin users"
+    },
+    "/remedies/{remedyId}": {
+      "schema": "remedy",
+      "description": "Database of sickness-remedy mappings"
+    },
+    "/prescriptions/{prescriptionId}": {
+      "schema": "prescription",
+      "description": "History of generated prescriptions"
+    }
+  }
+}

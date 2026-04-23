@@ -1,0 +1,94 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'google.com');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Validation Blueprints ---
+
+    function isValidPatient(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
+             data.age is number && data.age >= 0 && data.age <= 150 &&
+             data.gender is string && data.gender.size() > 0 &&
+             (data.createdAt is timestamp || data.createdAt == null);
+    }
+
+    function isValidRemedy(data) {
+      return data.sicknessName is string && data.sicknessName.size() > 0 &&
+             data.remedyName is string && data.remedyName.size() > 0 &&
+             data.preparation is string && data.preparation.size() > 0 &&
+             data.dosage is string && data.dosage.size() > 0 &&
+             data.duration is string && data.duration.size() > 0 &&
+             data.precautions is string &&
+             data.sideEffects is string;
+    }
+
+    function isValidPrescription(data) {
+      return data.patientId is string && isValidId(data.patientId) &&
+             data.sickness is string && data.sickness.size() > 0 &&
+             data.remedyId is string && isValidId(data.remedyId) &&
+             data.generatedAt is timestamp &&
+             data.details is map;
+    }
+
+    // --- Collection Rules ---
+
+    match /patients/{patientId} {
+      allow read: if isAdmin() || isOwner(patientId);
+      allow create: if isOwner(patientId) && isValidPatient(incoming()) && incoming().email == request.auth.token.email;
+      allow update: if (isAdmin() || (isOwner(patientId) && isValidPatient(incoming()) && incoming().email == existing().email));
+      allow delete: if isAdmin() || isOwner(patientId);
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(adminId) && (incoming().email == 'admin@example.com' || incoming().email == request.auth.token.email);
+      allow update, delete: if isAdmin();
+    }
+
+    match /remedies/{remedyId} {
+      allow read: if isSignedIn();
+      allow create, update: if isAdmin() && isValidRemedy(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /prescriptions/{prescriptionId} {
+      allow list: if isSignedIn() && (isAdmin() || resource.data.patientId == request.auth.uid);
+      allow get: if isSignedIn() && (isAdmin() || resource.data.patientId == request.auth.uid);
+      allow create: if isSignedIn() && (isAdmin() || (isOwner(incoming().patientId) && isValidPrescription(incoming())));
+      allow update, delete: if isAdmin();
+    }
+  }
+}

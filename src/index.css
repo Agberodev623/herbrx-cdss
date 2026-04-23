@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Georgia", serif;
+  
+  --color-sage-50: #FDFCF8;
+  --color-sage-100: #F8F9F4;
+  --color-sage-200: #E0E2D9;
+  --color-sage-300: #DAD7CD;
+  --color-sage-600: #5B6056;
+  --color-sage-800: #3A5A40;
+  --color-sage-900: #1A1C19;
+  
+  --color-tan-500: #D4A373;
+}
+
+@utility no-scrollbar {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer base {
+  body {
+    @apply antialiased bg-sage-50 text-sage-900;
+  }
+  
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+  }
+}
+
+@layer components {
+  .label-micro {
+    @apply text-[11px] font-bold uppercase tracking-widest text-sage-600;
+  }
+  
+  .card-geometric {
+    @apply bg-white rounded-2xl border border-sage-200 shadow-sm;
+  }
+}
+
